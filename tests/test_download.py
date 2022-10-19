@@ -7,8 +7,9 @@ from page_loader import download
 
 
 
-TEST_URL = 'http://test.com'
-TEST_FILE_NAME = 'test-com.html'
+TEST_URL = 'http://test.com/subdom/'
+TEST_FILE_NAME = 'test-com-subdom.html'
+TEST_RES_DIR_NAME = 'test-com-subdom_files'
 
 
 def test_download():
@@ -16,7 +17,7 @@ def test_download():
     os.mkdir(dir_path)
     f_name = os.path.join(dir_path, TEST_FILE_NAME)
     with requests_mock.Mocker() as m:
-        m.get('http://test.com', text='resp')
-        assert download('http://test.com', dir_path) == f_name
+        m.get(TEST_URL, text='resp')
+        assert download(TEST_URL, dir_path) == f_name
     with open(f_name) as f:
         assert 'resp' == f.read()
