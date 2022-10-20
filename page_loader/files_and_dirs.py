@@ -6,3 +6,7 @@ def save_file(path, mode, content):
 def make_res_dir_name(path):
     res = path.replace('.html', '_files')
     return res
+
+
+def is_rel_path(path: str) -> bool:
+    return path.startswith('./')

@@ -1,3 +1,4 @@
+from logging import root
 import requests
 import re
 import os
@@ -12,19 +13,25 @@ def get_DOM(path):
     return soup
 
 
-def get_imgs_from_DOM(soup):
+def get_imgs_from_DOM(soup, root_url):
     res = []
     img_list = soup.find_all('img')
     for img in img_list:
-        res.append(img['src'])
+        if urlparse(img['src']).netloc:
+            res.append(img['src'])
+        else:
+            root_url = root_url.rstrip('/')
+            res.append(root_url + img['src'])
     return res
 
 
 def download_imgs(img_list, dir_path):
     for img in img_list:
         r = requests.get(img)
-        f_name = os.path.basename(urlparse(img).path)
-        save_file(os.path.join(dir_path, f_name), 'wb', r.content)
+        full_path = urlparse(img).netloc + urlparse(img).path
+        path, ext = os.path.splitext(full_path)
+        path = re.sub(r'[^A-Za-z0-9]', r'-', path)
+        save_file(os.path.join(dir_path, path + ext), 'wb', r.content)
 
 
 def download(target_url, output):
@@ -34,7 +41,7 @@ def download(target_url, output):
     path = os.path.join(output, file_name)
     save_file(path, 'wb', req.content)
     soup = get_DOM(path)
-    img_list = get_imgs_from_DOM(soup)
+    img_list = get_imgs_from_DOM(soup, target_url)
     os.mkdir(make_res_dir_name(path))
     download_imgs(img_list, make_res_dir_name(path))
     return path
