@@ -25,12 +25,21 @@ def get_imgs_from_DOM(soup, root_url):
 
 
 def download_imgs(img_list, dir_path):
+    new_img_list = []
     for img in img_list:
         r = requests.get(img)
         full_path = urlparse(img).netloc + urlparse(img).path
         path, ext = os.path.splitext(full_path)
-        path = re.sub(r'[^A-Za-z0-9]', r'-', path)
-        save_file(os.path.join(dir_path, path + ext), 'wb', r.content)
+        save_path = re.sub(r'[^A-Za-z0-9]', r'-', path)
+        save_path = os.path.join(dir_path, save_path + ext)
+        save_file(save_path, 'wb', r.content)
+        new_img_list.append(save_path)
+    return new_img_list
+
+
+def replace_img(soup, imgs):
+    for i, tag in enumerate(soup.find_all('img')):
+        tag['src'] = imgs[i]
 
 
 def download(target_url, output):
@@ -42,5 +51,7 @@ def download(target_url, output):
     soup = get_DOM(path)
     img_list = get_imgs_from_DOM(soup, target_url)
     os.mkdir(make_res_dir_name(path))
-    download_imgs(img_list, make_res_dir_name(path))
+    new_img_list = download_imgs(img_list, make_res_dir_name(path))
+    replace_img(soup, new_img_list)
+    save_file(path, 'w+', soup.prettify())
     return path
