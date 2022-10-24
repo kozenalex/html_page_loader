@@ -6,40 +6,48 @@ from bs4 import BeautifulSoup
 from page_loader.files_and_dirs import make_res_dir_name, save_file
 
 
+RES_TAGS = (
+    {'tag': 'img', 'attr': 'src'},
+    {'tag': 'link', 'attr': 'href'},
+    {'tag': 'script', 'attr': 'src'}
+)
+
+
 def get_DOM(path):
     with open(path) as html_file:
         soup = BeautifulSoup(html_file, 'html.parser')
     return soup
 
 
-def get_imgs_from_DOM(soup, root_url):
-    res = []
-    img_list = soup.find_all('img')
-    for img in img_list:
-        if urlparse(img['src']).netloc:
-            res.append(img['src'])
+def get_res_from_DOM(soup, root_url, res_kind):
+    result = []
+    tags = [t for t in soup.find_all(res_kind['tag']) if t.has_attr(res_kind['attr'])]
+    for res in tags:
+        if urlparse(res[res_kind['attr']]).netloc:
+            result.append(res[res_kind['attr']])
         else:
             root_url = root_url.rstrip('/')
-            res.append(root_url + img['src'])
-    return res
+            result.append(root_url + res[res_kind['attr']])
+    return result
 
 
-def download_imgs(img_list, dir_path):
-    new_img_list = []
-    for img in img_list:
-        r = requests.get(img)
-        full_path = urlparse(img).netloc + urlparse(img).path
+def download_resours(res_list, dir_path):
+    new_res_list = []
+    for res in res_list:
+        r = requests.get(res)
+        full_path = urlparse(res).netloc + urlparse(res).path
         path, ext = os.path.splitext(full_path)
         save_path = re.sub(r'[^A-Za-z0-9]', r'-', path)
         save_path = os.path.join(dir_path, save_path + ext)
         save_file(save_path, 'wb', r.content)
-        new_img_list.append(save_path)
-    return new_img_list
+        new_res_list.append(save_path)
+    return new_res_list
 
 
-def replace_img(soup, imgs):
-    for i, tag in enumerate(soup.find_all('img')):
-        tag['src'] = imgs[i]
+def replace_resours(soup, res_list, res_kind):
+    tags = [t for t in soup.find_all(res_kind['tag']) if t.has_attr(res_kind['attr'])]
+    for i, tag in enumerate(tags):
+        tag[res_kind['attr']] = res_list[i]
 
 
 def download(target_url, output):
@@ -49,9 +57,13 @@ def download(target_url, output):
     path = os.path.join(output, file_name)
     save_file(path, 'wb', req.content)
     soup = get_DOM(path)
-    img_list = get_imgs_from_DOM(soup, target_url)
-    os.mkdir(make_res_dir_name(path))
-    new_img_list = download_imgs(img_list, make_res_dir_name(path))
-    replace_img(soup, new_img_list)
+    resours_dir = make_res_dir_name(path)
+    os.mkdir(resours_dir)
+    for res_kind in RES_TAGS:
+        print(f"Downloading {res_kind['tag']}s...")
+        res_list = get_res_from_DOM(soup, target_url, res_kind)
+        new_res_list = download_resours(res_list, resours_dir)
+        replace_resours(soup, new_res_list, res_kind)
+        print('Done!')
     save_file(path, 'w+', soup.prettify())
     return path
