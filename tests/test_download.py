@@ -29,7 +29,7 @@ def test_download():
         for i in IMGS:
             with open(os.path.join(FIXTURE_DIR, i['path']), 'rb') as f:
                 r_content = f.read()
-            im = requests_mock.Mocker()
-            im.get(i['url'], content=r_content)
+            m.get(i['url'], content=r_content)
         assert download(TEST_URL, dir_path) == f_name
+    assert len(IMGS) == len(os.listdir(os.path.join(dir_path, TEST_RES_DIR_NAME)))
     

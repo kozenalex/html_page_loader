@@ -22,9 +22,14 @@ def get_DOM(path):
 def get_res_from_DOM(soup, root_url, res_kind):
     result = []
     tags = [t for t in soup.find_all(res_kind['tag']) if t.has_attr(res_kind['attr'])]
+    root_uri = urlparse(root_url)
     for res in tags:
-        if urlparse(res[res_kind['attr']]).netloc:
+        if res[res_kind['attr']].startswith('http'):
             result.append(res[res_kind['attr']])
+        elif res[res_kind['attr']].startswith('//'):
+            result.append(
+                root_uri.scheme + '://' + res[res_kind['attr']][2:]
+            )
         else:
             root_url = root_url.rstrip('/')
             result.append(root_url + res[res_kind['attr']])
