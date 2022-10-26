@@ -22,6 +22,9 @@ def test_download():
     dir_path = tempfile.TemporaryDirectory().name
     os.mkdir(dir_path)
     f_name = os.path.join(dir_path, TEST_FILE_NAME)
+    expected_files = []
+    for i in IMGS:
+        expected_files.append(os.path.join(FIXTURE_DIR, i['path']))
     with open(os.path.join(FIXTURE_DIR,'test.html')) as f:
         resp_text = f.read()
     with requests_mock.Mocker() as m:

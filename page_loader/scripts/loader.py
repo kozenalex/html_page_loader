@@ -1,6 +1,7 @@
 import argparse
 import os
 from page_loader import download
+from page_loader.logger import config_logger
 DESCRIPTION = ''
 
 
@@ -16,6 +17,7 @@ parser.add_argument(
 
 def main():
     args = parser.parse_args()
+    config_logger()
     file_path = download(args.target_url, args.output)
     print(file_path)
 
