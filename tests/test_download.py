@@ -4,6 +4,7 @@ import requests_mock
 import os
 import tempfile
 from page_loader import download
+from page_loader.files_and_dirs import compare_files
 
 
 
@@ -34,5 +35,11 @@ def test_download():
                 r_content = f.read()
             m.get(i['url'], content=r_content)
         assert download(TEST_URL, dir_path) == f_name
-    assert len(IMGS) == len(os.listdir(os.path.join(dir_path, TEST_RES_DIR_NAME)))
+    got_files = sorted(os.listdir(os.path.join(dir_path, TEST_RES_DIR_NAME)))
+    print(got_files)
+    assert len(expected_files) == len(got_files)
+    for i, f in enumerate(expected_files):
+        f1 = os.path.join(dir_path, TEST_RES_DIR_NAME, got_files[i])
+        assert compare_files(f, f1) == True
+
     

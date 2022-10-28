@@ -27,7 +27,7 @@ def get_res_from_DOM(soup, root_url, res_kind):
         else:
             root_url = root_url.rstrip('/')
             result.append(root_url + res[res_kind['attr']])
-    logging.info(f"Got list of {res_kind['tag']}s to download. Number ={len(result)}" )
+    logging.info(f"Got list of {res_kind['tag']}s to download. Number ={len(result)}")
     return result
 
 

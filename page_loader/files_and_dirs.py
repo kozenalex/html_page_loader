@@ -1,10 +1,33 @@
+import re
+import os
+import logging
+
+
 def save_file(path, mode, content):
-    with open(path, mode) as f:
-        f.write(content)
+    try:
+        with open(path, mode) as f:
+            f.write(content)
+    except PermissionError as e:
+        logging.error(e)
+        print(f'You don\'t have permissions to save to {path}')
+
+
+def make_file_name(target_url, output):
+    file_name = re.sub(r'^http[s]*://', r'', target_url).rstrip('/')
+    file_name = re.sub(r'[^A-Za-z0-9]', r'-', file_name) + '.html'
+    path = os.path.join(output, file_name)
+    return path
 
 
 def make_res_dir_name(path):
     res = path.replace('.html', '_files')
+    logging.info('making dir for download resours ' + res)
+    try:
+        os.mkdir(res)
+    except FileExistsError:
+        logging.error(f'Dir {res} already exist!')
+        print(f'Dir {res} already exist!')
+        exit(1)
     return res
 
 
