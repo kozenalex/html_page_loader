@@ -34,14 +34,19 @@ def get_res_from_DOM(soup, root_url, res_kind):
 def download_resours(res_list, dir_path):
     new_res_list = []
     for res in res_list:
-        r = requests.get(res)
-        full_path = urlparse(res).netloc + urlparse(res).path
-        path, ext = os.path.splitext(full_path)
-        save_path = re.sub(r'[^A-Za-z0-9]', r'-', path)
-        save_path = os.path.join(dir_path, save_path + ext)
-        logging.info(f'Saving asset to file {save_path}')
-        save_file(save_path, 'wb', r.content)
-        new_res_list.append(save_path)
+        try:
+            r = requests.get(res)
+            r.raise_for_status()
+            full_path = urlparse(res).netloc + urlparse(res).path
+            path, ext = os.path.splitext(full_path)
+            save_path = re.sub(r'[^A-Za-z0-9]', r'-', path)
+            save_path = os.path.join(dir_path, save_path + ext)
+            logging.info(f'Saving asset to file {save_path}')
+            save_file(save_path, 'wb', r.content)
+            new_res_list.append(save_path)
+        except requests.ConnectionError:
+            logging.warning(f'Could not download {res} - connection error')
+            continue
     return new_res_list
 
 

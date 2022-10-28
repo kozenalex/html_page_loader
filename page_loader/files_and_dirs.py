@@ -9,7 +9,8 @@ def save_file(path, mode, content):
             f.write(content)
     except PermissionError as e:
         logging.error(e)
-        print(f'You don\'t have permissions to save to {path}')
+        print(f'Permissions denied to save to {path}')
+        raise(e)
 
 
 def make_file_name(target_url, output):
@@ -24,10 +25,10 @@ def make_res_dir_name(path):
     logging.info('making dir for download resours ' + res)
     try:
         os.mkdir(res)
-    except FileExistsError:
+    except FileExistsError as e:
         logging.error(f'Dir {res} already exist!')
         print(f'Dir {res} already exist!')
-        exit(1)
+        raise(e)
     return res
 
 

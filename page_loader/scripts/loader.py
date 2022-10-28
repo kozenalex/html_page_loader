@@ -18,7 +18,14 @@ parser.add_argument(
 def main():
     args = parser.parse_args()
     config_logger()
-    file_path = download(args.target_url, args.output)
+    try:
+        file_path = download(args.target_url, args.output)
+    except ConnectionError:
+        exit(1)
+    except PermissionError:
+        exit(1)
+    except FileExistsError:
+        exit(1)
     print(file_path)
 
 
