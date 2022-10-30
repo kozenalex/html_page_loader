@@ -31,7 +31,7 @@ def get_res_from_DOM(soup, root_url, res_kind):
     return result
 
 
-def download_resours(res_list, dir_path):
+def download_resours(res_list, dir_path, tag):
     new_res_list = []
     for res in res_list:
         try:
@@ -40,6 +40,8 @@ def download_resours(res_list, dir_path):
             full_path = urlparse(res).netloc + urlparse(res).path
             path, ext = os.path.splitext(full_path)
             save_path = re.sub(r'[^A-Za-z0-9]', r'-', path)
+            if not ext:
+                ext = '.js' if tag == 'script' else '.html'
             save_path = os.path.join(dir_path, save_path + ext)
             logging.info(f'Saving asset to file {save_path}')
             save_file(save_path, 'wb', r.content)
@@ -50,7 +52,7 @@ def download_resours(res_list, dir_path):
     return new_res_list
 
 
-def replace_resours(soup, res_list, res_kind):
+def replace_resours(soup, res_list, res_kind, output):
     tags = [t for t in soup.find_all(res_kind['tag']) if t.has_attr(res_kind['attr'])]
     for i, tag in enumerate(tags):
-        tag[res_kind['attr']] = res_list[i]
+        tag[res_kind['attr']] = res_list[i].replace(output + '/', '')

@@ -10,7 +10,7 @@ def save_file(path, mode, content):
     except PermissionError as e:
         logging.error(e)
         print(f'Permissions denied to save to {path}')
-        raise(e)
+        raise e
 
 
 def make_file_name(target_url, output):
@@ -28,7 +28,7 @@ def make_res_dir_name(path):
     except FileExistsError as e:
         logging.error(f'Dir {res} already exist!')
         print(f'Dir {res} already exist!')
-        raise(e)
+        raise e
     return res
 
 

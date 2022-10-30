@@ -29,7 +29,7 @@ def download(target_url, output):
     except requests.ConnectionError as e:
         logging.error(f'{e}')
         print(f'Could not connect, {e}')
-        exit(1)
+        raise e
     file_path = make_file_name(target_url, output)
     logging.info('saving html to file ' + file_path)
     save_file(file_path, 'wb', req.content)
@@ -38,8 +38,8 @@ def download(target_url, output):
     for res_kind in RES_TAGS:
         print(f"Downloading {res_kind['tag']}s...")
         res_list = get_res_from_DOM(soup, target_url, res_kind)
-        new_res_list = download_resours(res_list, resours_dir)
-        replace_resours(soup, new_res_list, res_kind)
+        new_res_list = download_resours(res_list, resours_dir, res_kind['tag'])
+        replace_resours(soup, new_res_list, res_kind, output)
         print('Done!')
     save_file(file_path, 'w', soup.prettify())
     logging.info('Job done!')
