@@ -15,7 +15,7 @@ FIXTURE_DIR = './tests/fixtures'
 RESOURSES = (
     {'url': 'http://test.com/subdom/123.jpg', 'path': '123.jpg'},
     {'url': 'http://test.com/subdom/234.png', 'path': '234.png'},
-    {'url': 'http://test.com/subdom/img/456.jpg', 'path': '456.jpg'},
+    {'url': 'http://test.com/img/456.jpg', 'path': '456.jpg'},
     {'url': 'http://test.com/subdom/script.js', 'path': 'script.js'},
     {'url': 'http://test.com/subdom/style.css', 'path': 'style.css'}
 )
@@ -37,7 +37,7 @@ def test_download():
                 r_content = f.read()
             m.get(i['url'], content=r_content)
         assert download(TEST_URL, dir_path) == f_name
-    got_files = sorted(os.listdir(os.path.join(dir_path, TEST_RES_DIR_NAME)))
+    got_files = os.listdir(os.path.join(dir_path, TEST_RES_DIR_NAME))
     assert len(expected_files) == len(got_files)
     for i, f in enumerate(expected_files):
         f1 = os.path.join(dir_path, TEST_RES_DIR_NAME, got_files[i])

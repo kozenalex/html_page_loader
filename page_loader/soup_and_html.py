@@ -26,7 +26,7 @@ def get_res_from_DOM(soup, root_url, res_kind):
                 root_uri.scheme + '://' + res[res_kind['attr']][2:]
             )
         else:
-            result.append(urljoin(root_url, res[res_kind['attr']].lstrip('/')))
+            result.append(urljoin(root_url, res[res_kind['attr']]))
     logging.info(f"Got list of {res_kind['tag']}s to download. Number ={len(result)}")
     return result
 
