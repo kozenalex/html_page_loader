@@ -26,6 +26,8 @@ def main():
         exit(1)
     except FileExistsError:
         exit(1)
+    except FileNotFoundError:
+        exit(1)
     print(f'Page suuccessfully downloded to {file_path}')
 
 

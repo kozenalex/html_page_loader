@@ -15,6 +15,7 @@ def save_file(path, mode, content):
         logging.error(e)
         print(f'Path not found {path}')
         raise e
+    logging.info(f'File {path} was successfully saved')
 
 
 def make_file_name(target_url, output):
@@ -33,11 +34,8 @@ def make_res_dir_name(path):
         logging.error(f'Dir {res} already exist!')
         print(f'Dir {res} already exist!')
         raise e
+    logging.info(f'Dir {res} was successfully created')
     return res
-
-
-def is_rel_path(path: str) -> bool:
-    return path.startswith('./')
 
 
 def compare_files(path1, path2):

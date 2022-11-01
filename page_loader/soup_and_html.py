@@ -1,4 +1,4 @@
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 from progress.bar import Bar
 import requests
@@ -26,8 +26,7 @@ def get_res_from_DOM(soup, root_url, res_kind):
                 root_uri.scheme + '://' + res[res_kind['attr']][2:]
             )
         else:
-            root_url = root_url.rstrip('/')
-            result.append(root_url + res[res_kind['attr']])
+            result.append(urljoin(root_url, res[res_kind['attr']].lstrip('/')))
     logging.info(f"Got list of {res_kind['tag']}s to download. Number ={len(result)}")
     return result
 
@@ -45,7 +44,7 @@ def download_resours(res_list, dir_path, tag):
                 if not ext:
                     ext = '.js' if tag == 'script' else '.html'
                 save_path = os.path.join(dir_path, save_path + ext)
-                logging.info(f'Saving asset to file {save_path}')
+                logging.info(f'Saving to file {save_path}')
                 save_file(save_path, 'wb', r.content)
                 new_res_list.append(save_path)
             except requests.ConnectionError:
