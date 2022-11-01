@@ -8,6 +8,11 @@ def test_file_exception():
         download('https://ya.ru', '/etc')
 
 
-#def test_connection_exception():
-#    with pytest.raises(requests.ConnectionError):
-#        download('https://test.test/subdom', '/var/tmp')
+def test_connection_exception():
+    with pytest.raises(requests.ConnectionError):
+        download('https://test.test/subdom')
+
+
+def test_file_exist_exception():
+    with pytest.raises(FileNotFoundError):
+        download('https://ya.ru', './fixtures')

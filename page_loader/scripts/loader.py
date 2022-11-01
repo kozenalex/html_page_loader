@@ -17,7 +17,7 @@ parser.add_argument(
 
 def main():
     args = parser.parse_args()
-    config_logger()
+    config_logger('info')
     try:
         file_path = download(args.target_url, args.output)
     except ConnectionError:
@@ -26,7 +26,7 @@ def main():
         exit(1)
     except FileExistsError:
         exit(1)
-    print(file_path)
+    print(f'Page suuccessfully downloded to {file_path}')
 
 
 if __name__ == '__main__':

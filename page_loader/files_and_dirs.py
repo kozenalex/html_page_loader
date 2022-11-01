@@ -11,6 +11,10 @@ def save_file(path, mode, content):
         logging.error(e)
         print(f'Permissions denied to save to {path}')
         raise e
+    except FileNotFoundError as e:
+        logging.error(e)
+        print(f'Path not found {path}')
+        raise e
 
 
 def make_file_name(target_url, output):

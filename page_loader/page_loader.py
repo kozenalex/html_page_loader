@@ -1,5 +1,6 @@
 import requests
 import logging
+import os
 from page_loader.files_and_dirs import (
     make_file_name,
     make_res_dir_name,
@@ -20,7 +21,7 @@ RES_TAGS = (
 )
 
 
-def download(target_url, output):
+def download(target_url, output=os.getcwd):
     logging.info('Application started...')
     logging.info('trying to request ' + target_url)
     try:
@@ -36,11 +37,9 @@ def download(target_url, output):
     soup = get_DOM(file_path)
     resours_dir = make_res_dir_name(file_path)
     for res_kind in RES_TAGS:
-        print(f"Downloading {res_kind['tag']}s...")
         res_list = get_res_from_DOM(soup, target_url, res_kind)
         new_res_list = download_resours(res_list, resours_dir, res_kind['tag'])
         replace_resours(soup, new_res_list, res_kind, output)
-        print('Done!')
     save_file(file_path, 'w', soup.prettify())
     logging.info('Job done!')
     return file_path

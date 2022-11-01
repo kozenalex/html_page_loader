@@ -1,5 +1,6 @@
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+from progress.bar import Bar
 import requests
 import os
 import re
@@ -33,22 +34,24 @@ def get_res_from_DOM(soup, root_url, res_kind):
 
 def download_resours(res_list, dir_path, tag):
     new_res_list = []
-    for res in res_list:
-        try:
-            r = requests.get(res)
-            r.raise_for_status()
-            full_path = urlparse(res).netloc + urlparse(res).path
-            path, ext = os.path.splitext(full_path)
-            save_path = re.sub(r'[^A-Za-z0-9]', r'-', path)
-            if not ext:
-                ext = '.js' if tag == 'script' else '.html'
-            save_path = os.path.join(dir_path, save_path + ext)
-            logging.info(f'Saving asset to file {save_path}')
-            save_file(save_path, 'wb', r.content)
-            new_res_list.append(save_path)
-        except requests.ConnectionError:
-            logging.warning(f'Could not download {res} - connection error')
-            continue
+    with Bar(f'Downloading {tag}s:', max=len(res_list)) as bar:
+        for res in res_list:
+            try:
+                r = requests.get(res)
+                r.raise_for_status()
+                full_path = urlparse(res).netloc + urlparse(res).path
+                path, ext = os.path.splitext(full_path)
+                save_path = re.sub(r'[^A-Za-z0-9]', r'-', path)
+                if not ext:
+                    ext = '.js' if tag == 'script' else '.html'
+                save_path = os.path.join(dir_path, save_path + ext)
+                logging.info(f'Saving asset to file {save_path}')
+                save_file(save_path, 'wb', r.content)
+                new_res_list.append(save_path)
+            except requests.ConnectionError:
+                logging.warning(f'Could not download {res} - connection error')
+                continue
+            bar.next()
     return new_res_list
 
 
