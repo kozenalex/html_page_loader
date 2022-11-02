@@ -18,11 +18,11 @@ def save_file(path, mode, content):
     logging.info(f'File {path} was successfully saved')
 
 
-def make_file_name(target_url, output):
-    file_name = re.sub(r'^http[s]*://', r'', target_url).rstrip('/')
-    file_name = re.sub(r'[^A-Za-z0-9]', r'-', file_name) + '.html'
-    path = os.path.join(output, file_name)
-    return path
+def make_file_name(target_url):
+    path, ext = os.path.splitext(target_url)
+    file_name = re.sub(r'^http[s]*://', r'', path).rstrip('/')
+    file_name = re.sub(r'[^A-Za-z0-9]', r'-', file_name)
+    return file_name + ext if ext else file_name + '.html'
 
 
 def make_res_dir_name(path):

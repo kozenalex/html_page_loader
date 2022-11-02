@@ -2,10 +2,11 @@ from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 from progress.bar import Bar
 import requests
-import os
-import re
 import logging
-from page_loader.files_and_dirs import save_file
+from page_loader.files_and_dirs import save_file, make_file_name
+
+
+RES_TAGS = [('img', 'src'), ('link', 'href'), ('script', 'src')]
 
 
 def get_DOM(path):
@@ -14,47 +15,38 @@ def get_DOM(path):
     return soup
 
 
-def get_res_from_DOM(soup, root_url, res_kind):
+def get_res_from_DOM(soup, root_url, save_dir, output):
     result = []
-    tags = [t for t in soup.find_all(res_kind['tag']) if t.has_attr(res_kind['attr'])]
-    root_uri = urlparse(root_url)
-    for res in tags:
-        if res[res_kind['attr']].startswith('http'):
-            result.append(res[res_kind['attr']])
-        elif res[res_kind['attr']].startswith('//'):
+    parsed_url = urlparse(root_url)
+    for res in RES_TAGS:
+        type, attr = res
+        tags = [t for t in soup.find_all(type) if t.has_attr(attr)]
+        for tag in tags:
+            parsed_src = urlparse(tag[attr])
+            if parsed_src.netloc and parsed_url.netloc != parsed_src.netloc:
+                continue
+            elif tag[attr].startswith('http'):
+                new_attr = tag[attr]
+            else:
+                new_attr = urljoin(root_url, tag[attr])
+            save_path = save_dir + '/' + make_file_name(new_attr)
             result.append(
-                root_uri.scheme + '://' + res[res_kind['attr']][2:]
+                {'url': new_attr, 'path': save_path}
             )
-        else:
-            result.append(urljoin(root_url, res[res_kind['attr']]))
-    logging.info(f"Got list of {res_kind['tag']}s to download. Number ={len(result)}")
+            tag[attr] = save_path.replace(output + '/', '')
+    logging.info(f"Got list of resourses to download. Number ={len(result)}")
     return result
 
 
-def download_resours(res_list, dir_path, tag):
-    new_res_list = []
-    with Bar(f'Downloading {tag}s:', max=len(res_list)) as bar:
+def download_resours(res_list):
+    with Bar('Downloading resourses:', max=len(res_list)) as bar:
         for res in res_list:
             try:
-                r = requests.get(res)
+                r = requests.get(res['url'])
                 r.raise_for_status()
-                full_path = urlparse(res).netloc + urlparse(res).path
-                path, ext = os.path.splitext(full_path)
-                save_path = re.sub(r'[^A-Za-z0-9]', r'-', path)
-                if not ext:
-                    ext = '.js' if tag == 'script' else '.html'
-                save_path = os.path.join(dir_path, save_path + ext)
-                logging.info(f'Saving to file {save_path}')
-                save_file(save_path, 'wb', r.content)
-                new_res_list.append(save_path)
+                logging.info(f"Saving to file {res['path']}")
+                save_file(res['path'], 'wb', r.content)
             except requests.ConnectionError:
-                logging.warning(f'Could not download {res} - connection error')
+                logging.warning(f"Could not download {res['url']} - connection error")
                 continue
             bar.next()
-    return new_res_list
-
-
-def replace_resours(soup, res_list, res_kind, output):
-    tags = [t for t in soup.find_all(res_kind['tag']) if t.has_attr(res_kind['attr'])]
-    for i, tag in enumerate(tags):
-        tag[res_kind['attr']] = res_list[i].replace(output + '/', '')
