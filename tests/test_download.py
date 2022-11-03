@@ -1,11 +1,8 @@
 import pytest
-import requests
 import requests_mock
 import os
 import tempfile
 from page_loader import download
-from page_loader.files_and_dirs import compare_files
-
 
 
 TEST_URL = 'http://test.com/subdom/'
@@ -21,26 +18,36 @@ RESOURSES = (
 )
 
 
-def test_download():
-    dir_path = tempfile.TemporaryDirectory().name
-    os.mkdir(dir_path)
-    f_name = os.path.join(dir_path, TEST_FILE_NAME)
-    expected_files = []
-    for i in RESOURSES:
-        expected_files.append(os.path.join(FIXTURE_DIR, i['path']))
-    with open(os.path.join(FIXTURE_DIR,'test.html')) as f:
-        resp_text = f.read()
-    with requests_mock.Mocker() as m:
-        m.get(TEST_URL, text=resp_text)
-        for i in RESOURSES:
-            with open(os.path.join(FIXTURE_DIR, i['path']), 'rb') as f:
-                r_content = f.read()
-            m.get(i['url'], content=r_content)
-        assert download(TEST_URL, dir_path) == f_name
-    got_files = os.listdir(os.path.join(dir_path, TEST_RES_DIR_NAME))
-    assert len(expected_files) == len(got_files)
-    for i, f in enumerate(expected_files):
-        f1 = os.path.join(dir_path, TEST_RES_DIR_NAME, got_files[i])
-        assert compare_files(f, f1) == True
+@pytest.fixture
+def test_html():
+    data = {}
+    with open(os.path.join(FIXTURE_DIR, 'test.html'), 'rb') as f:
+        data['content'] = f.read()
+    data['url'] = TEST_URL
+    return data
 
-    
+
+@pytest.fixture
+def test_resurses():
+    data = []
+    for res in RESOURSES:
+        test_item = {}
+        test_item['url'] = res['url']
+        with open(os.path.join(FIXTURE_DIR, res['path']), 'rb') as f:
+            test_item['content'] = f.read()
+        data.append(test_item)
+    return data
+
+
+def setup_mocks(test_html, test_resurses):
+    with requests_mock.Mocker() as m:
+        m.get(test_html['url'], content=test_html['content'])
+        for r in test_resurses:
+            m.get(r['url'], content=r['content'])
+
+
+def test_download(test_html, test_resurses):
+    with tempfile.TemporaryDirectory() as dir_name:
+        f_name = os.path.join(dir_name, TEST_FILE_NAME)
+        setup_mocks(test_html, test_resurses)
+        assert download(TEST_URL, dir_name) == f_name
