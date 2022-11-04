@@ -1,11 +1,21 @@
 import pytest
+import os, stat
 import requests
+import requests_mock
+import tempfile
 from page_loader import download
 
 
+TEST_URL = 'http://test.com/subdom/'
+
+
 def test_file_exception():
-    with pytest.raises(PermissionError):
-        download('https://ya.ru', '/etc')
+    with requests_mock.Mocker() as m:
+        m.get(TEST_URL, text='foo bar')
+        with tempfile.TemporaryDirectory() as dir_name:
+            os.chmod(dir_name, stat.S_IRUSR)
+            with pytest.raises(PermissionError):
+                download(TEST_URL, dir_name)
 
 
 def test_connection_exception():
@@ -14,5 +24,8 @@ def test_connection_exception():
 
 
 def test_file_exist_exception():
-    with pytest.raises(FileNotFoundError):
-        download('https://ya.ru', './fixtures')
+    with requests_mock.Mocker() as m:
+        m.get(TEST_URL, text='foo bar')
+        with tempfile.TemporaryDirectory() as dir_name:
+            with pytest.raises(FileNotFoundError):
+                download(TEST_URL, os.path.join(dir_name,'/foo'))
