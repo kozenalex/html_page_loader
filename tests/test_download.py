@@ -59,5 +59,11 @@ def test_download(test_html, test_resurses):
         for exp_f, got_f in zip(expected_files, got_files):
             assert compare_files(
                 os.path.join(RES_DIR, exp_f),
-                os.path.join(dir_name, TEST_RES_DIR_NAME, got_f)
+                os.path.join(dir_name, TEST_RES_DIR_NAME, got_f),
+                'rb'
             )
+        assert compare_files(
+            f_name,
+            './tests/fixtures/expected.html',
+            'r'
+        )

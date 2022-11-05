@@ -22,4 +22,4 @@
 ### Loading 1 source example with all resourses:
 [![asciicast](https://asciinema.org/a/7Fi4QRWIE4qHlPIdnofpwZ00q.svg)](https://asciinema.org/a/7Fi4QRWIE4qHlPIdnofpwZ00q)
 ### Loading 1 source example with progress bar and log:
-[![asciicast](https://asciinema.org/a/LHAXMmASrBCjHUUFdn9tLfCj5.svg)](https://asciinema.org/a/LHAXMmASrBCjHUUFdn9tLfCj5)
+[![asciicast](https://asciinema.org/a/D8bbrwnkfz179f4mNZvmnlOPF.svg)](https://asciinema.org/a/D8bbrwnkfz179f4mNZvmnlOPF)

@@ -39,9 +39,9 @@ def make_res_dir_name(path):
     return res
 
 
-def compare_files(path1, path2):
-    with open(path1, 'rb') as f1:
+def compare_files(path1, path2, mode):
+    with open(path1, mode) as f1:
         comp1 = f1.read()
-    with open(path2, 'rb') as f2:
+    with open(path2, mode) as f2:
         comp2 = f2.read()
     return comp1 == comp2
