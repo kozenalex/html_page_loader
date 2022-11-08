@@ -37,11 +37,3 @@ def make_res_dir_name(path):
         raise e
     logging.info(f'Dir {res} was successfully created')
     return res
-
-
-def compare_files(path1, path2, mode):
-    with open(path1, mode) as f1:
-        comp1 = f1.read()
-    with open(path2, mode) as f2:
-        comp2 = f2.read()
-    return comp1 == comp2

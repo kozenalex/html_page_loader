@@ -3,15 +3,14 @@ from bs4 import BeautifulSoup
 from progress.bar import Bar
 import requests
 import logging
-from page_loader.files_and_dirs import save_file, make_file_name
+from page_loader.io import save_file, make_file_name
 
 
 RES_TAGS = [('img', 'src'), ('link', 'href'), ('script', 'src')]
 
 
-def get_DOM(path):
-    with open(path) as html_file:
-        soup = BeautifulSoup(html_file, 'html.parser')
+def get_parsed_html(data):
+    soup = BeautifulSoup(data, 'html.parser')
     return soup
 
 

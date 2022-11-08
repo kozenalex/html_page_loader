@@ -3,7 +3,6 @@ import requests_mock
 import os
 import tempfile
 from page_loader import download
-from page_loader.files_and_dirs import compare_files
 
 
 TEST_URL = 'http://test.com/subdom/'
@@ -18,6 +17,14 @@ RESOURSES = (
     {'url': 'http://test.com/subdom/script.js', 'path': 'script.js'},
     {'url': 'http://test.com/subdom/style.css', 'path': 'style.css'}
 )
+
+
+def compare_files(path1, path2, mode):
+    with open(path1, mode) as f1:
+        comp1 = f1.read()
+    with open(path2, mode) as f2:
+        comp2 = f2.read()
+    return comp1 == comp2
 
 
 @pytest.fixture

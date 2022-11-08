@@ -1,4 +1,4 @@
-from page_loader.files_and_dirs import make_file_name
+from page_loader.io import make_file_name
 import pytest
 
 
