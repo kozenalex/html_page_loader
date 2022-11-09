@@ -1,51 +1,30 @@
-from urllib.parse import urljoin, urlparse
+import os.path
 from bs4 import BeautifulSoup
 from progress.bar import Bar
 import requests
 import logging
-from page_loader.io import save_file, make_file_name
-
-
-RES_TAGS = [('img', 'src'), ('link', 'href'), ('script', 'src')]
+from page_loader.io import save_file
+from page_loader.url import to_filename
 
 
 def get_parsed_html(data):
-    soup = BeautifulSoup(data, 'html.parser')
-    return soup
+    parsed_html = BeautifulSoup(data, 'html.parser')
+    return parsed_html
 
 
-def get_res_from_DOM(soup, root_url, save_dir, output):
-    result = []
-    parsed_url = urlparse(root_url)
-    for res in RES_TAGS:
-        type, attr = res
-        tags = [t for t in soup.find_all(type) if t.has_attr(attr)]
-        for tag in tags:
-            parsed_src = urlparse(tag[attr])
-            if parsed_src.netloc and parsed_url.netloc != parsed_src.netloc:
-                continue
-            elif tag[attr].startswith('http'):
-                new_attr = tag[attr]
-            else:
-                new_attr = urljoin(root_url, tag[attr])
-            save_path = save_dir + '/' + make_file_name(new_attr)
-            result.append(
-                {'url': new_attr, 'path': save_path}
-            )
-            tag[attr] = save_path.replace(output + '/', '')
-    logging.info(f"Got list of resourses to download. Number ={len(result)}")
-    return result
-
-
-def download_resours(res_list):
+def download_resourses(res_list, output, dir_name, p_html):
     with Bar('Downloading resourses:', max=len(res_list)) as bar:
         for res in res_list:
+            url, tag, attr = res
             try:
-                r = requests.get(res['url'])
+                r = requests.get(url)
                 r.raise_for_status()
-                logging.info(f"Saving to file {res['path']}")
-                save_file(res['path'], 'wb', r.content)
+                file_name = to_filename(url)
+                save_path = os.path.join(output, dir_name, file_name)
+                logging.info(f"Saving to file {save_path}")
+                save_file(save_path, 'wb', r.content)
+                tag[attr] = os.path.join(dir_name, file_name)
             except requests.ConnectionError:
-                logging.warning(f"Could not download {res['url']} - connection error")
+                logging.warning(f"Could not download {url} - connection error")
                 continue
             bar.next()

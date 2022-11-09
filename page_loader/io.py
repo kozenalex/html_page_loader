@@ -1,4 +1,3 @@
-import re
 import os
 import logging
 
@@ -18,22 +17,13 @@ def save_file(path, mode, content):
     logging.info(f'File {path} was successfully saved')
 
 
-def make_file_name(target_url):
-    path, ext = os.path.splitext(target_url)
-    file_name = re.sub(r'^http[s]*://', r'', path).rstrip('/')
-    file_name = re.sub(r'[^A-Za-z0-9]', r'-', file_name)
-    ext = re.sub(r'[^A-Za-z0-9\.]', r'-', ext)
-    return file_name + ext if ext else file_name + '.html'
-
-
-def make_res_dir_name(path):
-    res = path.replace('.html', '_files')
-    logging.info('making dir for download resours ' + res)
+def make_res_dir(dir_name, output):
+    path = os.path.join(output, dir_name)
+    logging.info('making dir for download resours ' + path)
     try:
-        os.mkdir(res)
+        os.mkdir(path)
     except FileExistsError as e:
-        logging.error(f'Dir {res} already exist!')
-        print(f'Dir {res} already exist!')
+        logging.error(f'Dir {path} already exist!')
+        print(f'Dir {path} already exist!')
         raise e
-    logging.info(f'Dir {res} was successfully created')
-    return res
+    logging.info(f'Dir {path} was successfully created')

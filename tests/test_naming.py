@@ -1,4 +1,4 @@
-from page_loader.io import make_file_name
+from page_loader.url import to_filename
 import pytest
 
 
@@ -19,5 +19,5 @@ EXPECTED_NAMES = [
 
 
 @pytest.mark.parametrize("case, expected", zip(CASES, EXPECTED_NAMES))
-def test_make_file_name(case, expected):
-    assert make_file_name(case) == expected
+def test_to_filename(case, expected):
+    assert to_filename(case) == expected
