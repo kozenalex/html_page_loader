@@ -25,6 +25,12 @@ def download_resourses(res_list, output, dir_name, p_html):
             except requests.ConnectionError:
                 logging.warning(f"Could not download {url} - connection error")
                 continue
+            except FileExistsError:
+                tag[attr] = url
+                continue
+            except PermissionError:
+                tag[attr] = url
+                continue
             bar.next()
 
 
