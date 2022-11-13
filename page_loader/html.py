@@ -1,10 +1,9 @@
-import os.path
 from bs4 import BeautifulSoup
-from progress.bar import Bar
-import requests
 import logging
-from page_loader.io import save_file
-from page_loader.url import to_filename
+from urllib.parse import urljoin, urlparse
+
+
+RES_TAGS = [('img', 'src'), ('link', 'href'), ('script', 'src')]
 
 
 def get_parsed_html(data):
@@ -12,19 +11,22 @@ def get_parsed_html(data):
     return parsed_html
 
 
-def download_resourses(res_list, output, dir_name, p_html):
-    with Bar('Downloading resourses:', max=len(res_list)) as bar:
-        for res in res_list:
-            url, tag, attr = res
-            try:
-                r = requests.get(url)
-                r.raise_for_status()
-                file_name = to_filename(url)
-                save_path = os.path.join(output, dir_name, file_name)
-                logging.info(f"Saving to file {save_path}")
-                save_file(save_path, 'wb', r.content)
-                tag[attr] = os.path.join(dir_name, file_name)
-            except requests.ConnectionError:
-                logging.warning(f"Could not download {url} - connection error")
+def prepare_res_list(parsed_html, root_url):
+    result = []
+    parsed_url = urlparse(root_url)
+    for res in RES_TAGS:
+        type, attr = res
+        tags = [t for t in parsed_html.find_all(type) if t.has_attr(attr)]
+        for tag in tags:
+            parsed_src = urlparse(tag[attr])
+            if parsed_src.netloc and parsed_url.netloc != parsed_src.netloc:
                 continue
-            bar.next()
+            elif tag[attr].startswith('http'):
+                new_attr = tag[attr]
+            else:
+                new_attr = urljoin(root_url, tag[attr])
+            result.append(
+                (new_attr, tag, attr)
+            )
+    logging.info(f"Got list of resourses to download. Number ={len(result)}")
+    return result
