@@ -11,7 +11,7 @@ def get_parsed_html(data):
     return parsed_html
 
 
-def prepare_res_list(parsed_html, root_url):
+def get_resourses_list_from_html(parsed_html, root_url):
     result = []
     parsed_url = urlparse(root_url)
     for res in RES_TAGS:

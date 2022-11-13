@@ -6,7 +6,7 @@ from page_loader.io import save_file, make_res_dir
 from page_loader.url import to_dirname, to_filename
 from page_loader.html import (
     get_parsed_html,
-    prepare_res_list
+    get_resourses_list_from_html
 )
 
 
@@ -45,7 +45,7 @@ def download(target_url, output=os.getcwd):
         print(f'Could not connect, {e}')
         raise e
     parsed_html = get_parsed_html(req.text)
-    res_list = prepare_res_list(parsed_html, target_url)
+    res_list = get_resourses_list_from_html(parsed_html, target_url)
     if res_list:
         resours_dir = to_dirname(target_url)
         make_res_dir(resours_dir, output)
